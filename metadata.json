@@ -1,0 +1,6 @@
+{
+  "name": "8A3 Hoàng Văn Thụ 3D",
+  "description": "Trò chơi không gian 3D trường THCS Hoàng Văn Thụ - quét mặt webcam tạo học sinh lớp 8A3, mặc đồng phục theo thứ, học tập, làm việc tốt, khởi nghiệp và nâng cấp phương tiện.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

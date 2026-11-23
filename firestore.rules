@@ -1,0 +1,541 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isSuperAdmin() {
+      return isVerifiedUser() && request.auth.token.email == 'ngmanhcuong61@gmail.com';
+    }
+
+    function isSubAdmin() {
+      return isVerifiedUser() &&
+        exists(/databases/$(database)/documents/subAdmins/$(request.auth.uid));
+    }
+
+    function subAdminDoc() {
+      return get(/databases/$(database)/documents/subAdmins/$(request.auth.uid)).data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidStringList(arr, maxLen) {
+      return arr is list && arr.size() <= maxLen && (arr.size() == 0 || arr[0] is string);
+    }
+
+    function isValidStudent(data, uidParam) {
+      return data.keys().hasAll([
+          'uid', 'studentName', 'isClassMember', 'hairStyle', 'hasGlasses', 'skinTone',
+          'equippedUniform', 'equippedOutfit', 'equippedVehicle', 'equippedSupply',
+          'isDelinquent', 'wearingHelmet',
+          'ownedUniforms', 'ownedOutfits', 'ownedVehicles', 'ownedSupplies', 'ownedStartups',
+          'money', 'energy', 'studyBuffLessons', 'xp', 'level', 'goodPoints',
+          'lessonsCompleted', 'goodDeedsCompleted', 'grabMissionsCompleted',
+          'streakDays', 'lastClaimedDateStr', 'lastActiveDateStr',
+          'vipClaimedThisWeek', 'weeklyScore', 'weekKey',
+          'completedDeedIdsToday', 'jobsWorkedToday', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'uid', 'studentName', 'isClassMember', 'hairStyle', 'hasGlasses', 'skinTone',
+          'equippedUniform', 'equippedOutfit', 'equippedVehicle', 'equippedSupply',
+          'isDelinquent', 'wearingHelmet',
+          'ownedUniforms', 'ownedOutfits', 'ownedVehicles', 'ownedSupplies', 'ownedStartups',
+          'money', 'energy', 'studyBuffLessons', 'xp', 'level', 'goodPoints',
+          'lessonsCompleted', 'goodDeedsCompleted', 'grabMissionsCompleted',
+          'streakDays', 'lastClaimedDateStr', 'lastActiveDateStr',
+          'vipClaimedThisWeek', 'weeklyScore', 'weekKey',
+          'completedDeedIdsToday', 'jobsWorkedToday', 'createdAt', 'updatedAt'
+        ]) &&
+        data.uid == request.auth.uid &&
+        data.uid == uidParam &&
+        data.studentName is string && data.studentName.size() >= 1 && data.studentName.size() <= 60 &&
+        data.isClassMember is bool &&
+        data.hairStyle in ['short_boy', 'ponytail', 'bob_cut', 'spiky'] &&
+        data.hasGlasses is bool &&
+        data.skinTone is string && data.skinTone.size() > 0 && data.skinTone.size() <= 20 &&
+        data.equippedUniform in ['white_246', 'green_35', 'vip_8a3'] &&
+        data.equippedOutfit in ['school_uniform', 'street_hoodie', 'bomber_ls', 'sport_track', 'formal_suit', 'ao_dai_vn'] &&
+        data.equippedVehicle in ['walk', 'bike', 'scooter', 'motorbike', 'car', 'plane'] &&
+        data.equippedSupply in ['basic_books', 'casio_kit', 'ergonomic_bag', 'ipad_pro', 'ar_workstation'] &&
+        data.isDelinquent is bool &&
+        data.wearingHelmet is bool &&
+        isValidStringList(data.ownedUniforms, 10) &&
+        isValidStringList(data.ownedOutfits, 10) &&
+        isValidStringList(data.ownedVehicles, 10) &&
+        isValidStringList(data.ownedSupplies, 10) &&
+        isValidStringList(data.ownedStartups, 10) &&
+        data.money is number && data.money >= 0 && data.money <= 1000000000 &&
+        data.energy is number && data.energy >= 0 && data.energy <= 100 &&
+        data.studyBuffLessons is number && data.studyBuffLessons >= 0 && data.studyBuffLessons <= 100 &&
+        data.xp is number && data.xp >= 0 && data.xp <= 1000000 &&
+        data.level is number && data.level >= 1 && data.level <= 200 &&
+        data.goodPoints is number && data.goodPoints >= 0 && data.goodPoints <= 1000000 &&
+        data.lessonsCompleted is number && data.lessonsCompleted >= 0 && data.lessonsCompleted <= 100000 &&
+        data.goodDeedsCompleted is number && data.goodDeedsCompleted >= 0 && data.goodDeedsCompleted <= 100000 &&
+        data.grabMissionsCompleted is number && data.grabMissionsCompleted >= 0 && data.grabMissionsCompleted <= 100000 &&
+        data.streakDays is number && data.streakDays >= 1 && data.streakDays <= 7 &&
+        data.lastClaimedDateStr is string && data.lastClaimedDateStr.size() <= 20 &&
+        data.lastActiveDateStr is string && data.lastActiveDateStr.size() <= 20 &&
+        data.vipClaimedThisWeek is bool &&
+        data.weeklyScore is number && data.weeklyScore >= 0 && data.weeklyScore <= 10000000 &&
+        data.weekKey is string && data.weekKey.size() > 0 && data.weekKey.size() <= 20 &&
+        isValidStringList(data.completedDeedIdsToday, 20) &&
+        data.jobsWorkedToday is number && data.jobsWorkedToday >= 0 && data.jobsWorkedToday <= 10 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidLeaderboardEntry(data, uidParam) {
+      return data.keys().hasAll([
+          'uid', 'studentName', 'isClassMember', 'level', 'weeklyScore',
+          'goodPoints', 'vehicleId', 'weekKey', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'uid', 'studentName', 'isClassMember', 'level', 'weeklyScore',
+          'goodPoints', 'vehicleId', 'weekKey', 'updatedAt'
+        ]) &&
+        data.uid == request.auth.uid &&
+        data.uid == uidParam &&
+        data.studentName is string && data.studentName.size() >= 1 && data.studentName.size() <= 60 &&
+        data.isClassMember == true &&
+        data.level is number && data.level >= 1 && data.level <= 200 &&
+        data.weeklyScore is number && data.weeklyScore >= 0 && data.weeklyScore <= 10000000 &&
+        data.goodPoints is number && data.goodPoints >= 0 && data.goodPoints <= 1000000 &&
+        data.vehicleId in ['walk', 'bike', 'scooter', 'motorbike', 'car', 'plane'] &&
+        data.weekKey is string && data.weekKey.size() > 0 && data.weekKey.size() <= 20 &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidSubAdmin(data, uidParam) {
+      return data.keys().hasAll([
+          'uid', 'email', 'displayName', 'jobType', 'jobTitle',
+          'canMuteMic', 'canModerateChat', 'canIssueFine', 'assignedByUid', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'uid', 'email', 'displayName', 'jobType', 'jobTitle',
+          'canMuteMic', 'canModerateChat', 'canIssueFine', 'assignedByUid', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.uid) &&
+        data.uid == uidParam &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 120 &&
+        data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 60 &&
+        data.jobType in ['teacher', 'police', 'disciplinarian', 'event_manager', 'custom'] &&
+        data.jobTitle is string && data.jobTitle.size() >= 1 && data.jobTitle.size() <= 60 &&
+        data.canMuteMic is bool &&
+        data.canModerateChat is bool &&
+        data.canIssueFine is bool &&
+        isValidId(data.assignedByUid) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidModeration(data, uidParam) {
+      return data.keys().hasAll([
+          'uid', 'micMuted', 'chatMuted', 'reason', 'mutedByUid', 'mutedByName', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'uid', 'micMuted', 'chatMuted', 'reason', 'mutedByUid', 'mutedByName', 'updatedAt'
+        ]) &&
+        isValidId(data.uid) &&
+        data.uid == uidParam &&
+        data.micMuted is bool &&
+        data.chatMuted is bool &&
+        data.reason is string && data.reason.size() <= 140 &&
+        isValidId(data.mutedByUid) &&
+        data.mutedByName is string && data.mutedByName.size() >= 1 && data.mutedByName.size() <= 60 &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidPresence(data, uidParam) {
+      return data.keys().hasAll([
+          'uid', 'studentName', 'isClassMember', 'roleType', 'roleLabel',
+          'hairStyle', 'hasGlasses', 'skinTone', 'equippedUniform', 'equippedOutfit', 'equippedVehicle',
+          'isDelinquent', 'wearingHelmet', 'isWheelie', 'isReckless',
+          'vipClaimed', 'x', 'z', 'rotY', 'micActive', 'micMuted',
+          'redLightViolationAt', 'helmetViolationAt', 'online', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'uid', 'studentName', 'isClassMember', 'roleType', 'roleLabel',
+          'hairStyle', 'hasGlasses', 'skinTone', 'equippedUniform', 'equippedOutfit', 'equippedVehicle',
+          'isDelinquent', 'wearingHelmet', 'isWheelie', 'isReckless',
+          'vipClaimed', 'x', 'z', 'rotY', 'micActive', 'micMuted',
+          'redLightViolationAt', 'helmetViolationAt', 'online', 'updatedAt'
+        ]) &&
+        data.uid == request.auth.uid &&
+        data.uid == uidParam &&
+        data.studentName is string && data.studentName.size() >= 1 && data.studentName.size() <= 60 &&
+        data.isClassMember is bool &&
+        data.roleType in ['super_admin', 'sub_admin', 'student', 'visitor'] &&
+        (data.roleType != 'super_admin' || isSuperAdmin()) &&
+        (data.roleType != 'sub_admin' || isSubAdmin()) &&
+        data.roleLabel is string && data.roleLabel.size() <= 40 &&
+        data.hairStyle in ['short_boy', 'ponytail', 'bob_cut', 'spiky'] &&
+        data.hasGlasses is bool &&
+        data.skinTone is string && data.skinTone.size() > 0 && data.skinTone.size() <= 20 &&
+        data.equippedUniform in ['white_246', 'green_35', 'vip_8a3'] &&
+        data.equippedOutfit in ['school_uniform', 'street_hoodie', 'bomber_ls', 'sport_track', 'formal_suit', 'ao_dai_vn'] &&
+        data.equippedVehicle in ['walk', 'bike', 'scooter', 'motorbike', 'car', 'plane'] &&
+        data.isDelinquent is bool &&
+        data.wearingHelmet is bool &&
+        data.isWheelie is bool &&
+        data.isReckless is bool &&
+        data.vipClaimed is bool &&
+        data.x is number && data.x >= -100 && data.x <= 100 &&
+        data.z is number && data.z >= -100 && data.z <= 120 &&
+        data.rotY is number && data.rotY >= -10 && data.rotY <= 10 &&
+        data.micActive is bool &&
+        data.micMuted is bool &&
+        data.redLightViolationAt is number && data.redLightViolationAt >= 0 &&
+        data.helmetViolationAt is number && data.helmetViolationAt >= 0 &&
+        data.online is bool &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidChatMessage(data, msgIdParam) {
+      return data.keys().hasAll([
+          'id', 'senderUid', 'senderName', 'senderRoleLabel', 'text', 'deleted', 'createdAtMs', 'createdAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'senderUid', 'senderName', 'senderRoleLabel', 'text', 'deleted', 'createdAtMs', 'createdAt'
+        ]) &&
+        data.id == msgIdParam &&
+        isValidId(data.senderUid) &&
+        data.senderName is string && data.senderName.size() >= 1 && data.senderName.size() <= 60 &&
+        data.senderRoleLabel is string && data.senderRoleLabel.size() <= 40 &&
+        data.text is string && data.text.size() >= 1 && data.text.size() <= 240 &&
+        data.deleted is bool &&
+        data.createdAtMs is number && data.createdAtMs >= 0 &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidRtcSignal(data, sigIdParam) {
+      return data.keys().hasAll(['id', 'fromUid', 'toUid', 'type', 'payload', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'fromUid', 'toUid', 'type', 'payload', 'createdAt']) &&
+        data.id == sigIdParam &&
+        isValidId(data.fromUid) &&
+        isValidId(data.toUid) &&
+        data.fromUid != data.toUid &&
+        data.type in ['offer', 'answer', 'ice'] &&
+        data.payload is string && data.payload.size() > 0 && data.payload.size() <= 8000 &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidPenalty(data, penIdParam) {
+      return data.keys().hasAll([
+          'id', 'targetUid', 'targetName', 'issuedByUid', 'issuedByName',
+          'reason', 'amount', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'targetUid', 'targetName', 'issuedByUid', 'issuedByName',
+          'reason', 'amount', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.id == penIdParam &&
+        isValidId(data.targetUid) &&
+        data.targetName is string && data.targetName.size() >= 1 && data.targetName.size() <= 60 &&
+        isValidId(data.issuedByUid) &&
+        data.issuedByName is string && data.issuedByName.size() >= 1 && data.issuedByName.size() <= 60 &&
+        data.reason is string && data.reason.size() >= 1 && data.reason.size() <= 160 &&
+        data.amount is number && data.amount >= 1000 && data.amount <= 100000 &&
+        data.status in ['unpaid', 'paid'] &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidAssignment(data, assignIdParam) {
+      return data.keys().hasAll([
+          'id', 'assigneeUid', 'assigneeName', 'assignedByUid', 'title',
+          'description', 'jobCategory', 'rewardMoney', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'assigneeUid', 'assigneeName', 'assignedByUid', 'title',
+          'description', 'jobCategory', 'rewardMoney', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.id == assignIdParam &&
+        isValidId(data.assigneeUid) &&
+        data.assigneeName is string && data.assigneeName.size() >= 1 && data.assigneeName.size() <= 60 &&
+        isValidId(data.assignedByUid) &&
+        data.title is string && data.title.size() >= 1 && data.title.size() <= 100 &&
+        data.description is string && data.description.size() >= 1 && data.description.size() <= 300 &&
+        data.jobCategory in ['teacher', 'police', 'discipline', 'event', 'other'] &&
+        data.rewardMoney is number && data.rewardMoney >= 0 && data.rewardMoney <= 100000 &&
+        data.status in ['pending', 'in_progress', 'completed'] &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidMuseumArtwork(data, slotIdParam) {
+      return data.keys().hasAll([
+          'slotId', 'section', 'title', 'caption', 'imageDataUrl',
+          'uploadedByUid', 'published', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'slotId', 'section', 'title', 'caption', 'imageDataUrl',
+          'uploadedByUid', 'published', 'updatedAt'
+        ]) &&
+        isValidId(data.slotId) &&
+        data.slotId == slotIdParam &&
+        data.section in ['chi_lang', 'tam_thanh', 'mac_dynasty', 'hoang_van_thu'] &&
+        data.title is string && data.title.size() >= 1 && data.title.size() <= 80 &&
+        data.caption is string && data.caption.size() <= 220 &&
+        data.imageDataUrl is string && data.imageDataUrl.size() >= 1 && data.imageDataUrl.size() <= 200000 &&
+        isValidId(data.uploadedByUid) &&
+        data.published is bool &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidMuseumMemory(data, memIdParam) {
+      return data.keys().hasAll([
+          'id', 'authorUid', 'authorName', 'authorRoleLabel', 'message',
+          'photoDataUrl', 'signatureDataUrl', 'cardColor', 'deleted', 'createdAtMs', 'createdAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'authorUid', 'authorName', 'authorRoleLabel', 'message',
+          'photoDataUrl', 'signatureDataUrl', 'cardColor', 'deleted', 'createdAtMs', 'createdAt'
+        ]) &&
+        isValidId(data.id) &&
+        data.id == memIdParam &&
+        isValidId(data.authorUid) &&
+        data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 60 &&
+        data.authorRoleLabel is string && data.authorRoleLabel.size() <= 40 &&
+        data.message is string && data.message.size() <= 180 &&
+        data.photoDataUrl is string && data.photoDataUrl.size() <= 200000 &&
+        data.signatureDataUrl is string && data.signatureDataUrl.size() <= 120000 &&
+        data.cardColor is string && data.cardColor.size() >= 1 && data.cardColor.size() <= 20 &&
+        data.deleted is bool &&
+        data.createdAtMs is number && data.createdAtMs >= 0 &&
+        data.createdAt is timestamp;
+    }
+
+    match /students/{userId} {
+      allow get: if isVerifiedUser() && isValidId(userId) && (request.auth.uid == userId || isSuperAdmin());
+      allow list: if false;
+      allow create: if isVerifiedUser() && isValidId(userId) &&
+        isValidStudent(incoming(), userId) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser() && isValidId(userId) &&
+        request.auth.uid == userId &&
+        isValidStudent(incoming(), userId) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'studentName', 'isClassMember', 'hairStyle', 'hasGlasses', 'skinTone',
+          'equippedUniform', 'equippedOutfit', 'equippedVehicle', 'equippedSupply',
+          'isDelinquent', 'wearingHelmet',
+          'ownedUniforms', 'ownedOutfits', 'ownedVehicles', 'ownedSupplies', 'ownedStartups',
+          'money', 'energy', 'studyBuffLessons', 'xp', 'level', 'goodPoints',
+          'lessonsCompleted', 'goodDeedsCompleted', 'grabMissionsCompleted',
+          'streakDays', 'lastClaimedDateStr', 'lastActiveDateStr',
+          'vipClaimedThisWeek', 'weeklyScore', 'weekKey',
+          'completedDeedIdsToday', 'jobsWorkedToday', 'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    match /leaderboard/{userId} {
+      allow get: if isSignedIn() && isValidId(userId);
+      allow list: if isSignedIn() && resource.data.isClassMember == true;
+      allow create: if isVerifiedUser() && isValidId(userId) &&
+        isValidLeaderboardEntry(incoming(), userId) &&
+        incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser() && isValidId(userId) &&
+        request.auth.uid == userId &&
+        isValidLeaderboardEntry(incoming(), userId) &&
+        incoming().uid == existing().uid &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'studentName', 'isClassMember', 'level', 'weeklyScore',
+          'goodPoints', 'vehicleId', 'weekKey', 'updatedAt'
+        ]);
+      allow delete: if isVerifiedUser() && isValidId(userId) && (request.auth.uid == userId || isSuperAdmin());
+    }
+
+    match /subAdmins/{targetUid} {
+      allow get: if isVerifiedUser() && isValidId(targetUid) && (isSuperAdmin() || request.auth.uid == targetUid);
+      allow list: if isVerifiedUser() && isSuperAdmin();
+      allow create: if isSuperAdmin() && isValidId(targetUid) &&
+        isValidSubAdmin(incoming(), targetUid) &&
+        incoming().assignedByUid == request.auth.uid &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isSuperAdmin() && isValidId(targetUid) &&
+        isValidSubAdmin(incoming(), targetUid) &&
+        incoming().uid == existing().uid &&
+        incoming().assignedByUid == existing().assignedByUid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'email', 'displayName', 'jobType', 'jobTitle',
+          'canMuteMic', 'canModerateChat', 'canIssueFine', 'updatedAt'
+        ]);
+      allow delete: if isSuperAdmin() && isValidId(targetUid);
+    }
+
+    match /moderation/{targetUid} {
+      allow get: if isVerifiedUser() && isValidId(targetUid) && (request.auth.uid == targetUid || isSuperAdmin() || isSubAdmin());
+      allow list: if isVerifiedUser() && (isSuperAdmin() || resource.data.uid == request.auth.uid);
+      allow create, update: if isVerifiedUser() && isValidId(targetUid) &&
+        isValidModeration(incoming(), targetUid) &&
+        incoming().mutedByUid == request.auth.uid &&
+        incoming().updatedAt == request.time &&
+        (
+          isSuperAdmin() ||
+          (
+            isSubAdmin() &&
+            !exists(/databases/$(database)/documents/subAdmins/$(targetUid)) &&
+            (
+              (incoming().micMuted == true && subAdminDoc().canMuteMic == true) ||
+              (incoming().micMuted == false && subAdminDoc().canMuteMic == true) ||
+              (subAdminDoc().canModerateChat == true)
+            )
+          )
+        );
+      allow delete: if isSuperAdmin() && isValidId(targetUid);
+    }
+
+    match /presence/{userId} {
+      allow get: if isVerifiedUser() && isValidId(userId);
+      allow list: if isVerifiedUser() && resource.data.online == true;
+      allow create, update: if isVerifiedUser() && isValidId(userId) &&
+        request.auth.uid == userId &&
+        isValidPresence(incoming(), userId) &&
+        incoming().updatedAt == request.time;
+      allow delete: if isVerifiedUser() && isValidId(userId) && (request.auth.uid == userId || isSuperAdmin());
+    }
+
+    match /chatMessages/{msgId} {
+      allow get: if isVerifiedUser() && isValidId(msgId);
+      allow list: if isVerifiedUser() && resource.data.deleted == false;
+      allow create: if isVerifiedUser() && isValidId(msgId) &&
+        isValidChatMessage(incoming(), msgId) &&
+        incoming().senderUid == request.auth.uid &&
+        incoming().deleted == false &&
+        incoming().createdAt == request.time &&
+        (
+          !exists(/databases/$(database)/documents/moderation/$(request.auth.uid)) ||
+          get(/databases/$(database)/documents/moderation/$(request.auth.uid)).data.chatMuted == false
+        );
+      allow update: if isVerifiedUser() && isValidId(msgId) &&
+        isValidChatMessage(incoming(), msgId) &&
+        (isSuperAdmin() || (isSubAdmin() && subAdminDoc().canModerateChat == true)) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['deleted']) &&
+        incoming().deleted is bool;
+      allow delete: if isSuperAdmin() && isValidId(msgId);
+    }
+
+    match /rtcSignals/{signalId} {
+      allow get: if isVerifiedUser() && isValidId(signalId) && (resource.data.toUid == request.auth.uid || resource.data.fromUid == request.auth.uid);
+      allow list: if isVerifiedUser() && resource.data.toUid == request.auth.uid;
+      allow create: if isVerifiedUser() && isValidId(signalId) &&
+        isValidRtcSignal(incoming(), signalId) &&
+        incoming().fromUid == request.auth.uid &&
+        incoming().createdAt == request.time;
+      allow delete: if isVerifiedUser() && isValidId(signalId) && (resource.data.toUid == request.auth.uid || resource.data.fromUid == request.auth.uid);
+    }
+
+    match /penalties/{penaltyId} {
+      allow get: if isVerifiedUser() && isValidId(penaltyId) && (resource.data.targetUid == request.auth.uid || isSuperAdmin() || isSubAdmin());
+      allow list: if isVerifiedUser() && (resource.data.targetUid == request.auth.uid || isSuperAdmin() || resource.data.issuedByUid == request.auth.uid);
+      allow create: if isVerifiedUser() && isValidId(penaltyId) &&
+        isValidPenalty(incoming(), penaltyId) &&
+        incoming().issuedByUid == request.auth.uid &&
+        incoming().status == 'unpaid' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        (isSuperAdmin() || (isSubAdmin() && subAdminDoc().canIssueFine == true));
+      allow update: if isVerifiedUser() && isValidId(penaltyId) &&
+        isValidPenalty(incoming(), penaltyId) &&
+        incoming().id == existing().id &&
+        incoming().targetUid == existing().targetUid &&
+        incoming().issuedByUid == existing().issuedByUid &&
+        incoming().amount == existing().amount &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        (
+          (
+            request.auth.uid == existing().targetUid &&
+            existing().status == 'unpaid' &&
+            incoming().status == 'paid' &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          ) ||
+          isSuperAdmin()
+        );
+      allow delete: if isSuperAdmin() && isValidId(penaltyId);
+    }
+
+    match /assignments/{assignmentId} {
+      allow get: if isVerifiedUser() && isValidId(assignmentId) && (resource.data.assigneeUid == request.auth.uid || isSuperAdmin() || isSubAdmin());
+      allow list: if isVerifiedUser() && (isSuperAdmin() || resource.data.assigneeUid == request.auth.uid);
+      allow create: if isSuperAdmin() && isValidId(assignmentId) &&
+        isValidAssignment(incoming(), assignmentId) &&
+        incoming().assignedByUid == request.auth.uid &&
+        incoming().status == 'pending' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser() && isValidId(assignmentId) &&
+        isValidAssignment(incoming(), assignmentId) &&
+        incoming().id == existing().id &&
+        incoming().assignedByUid == existing().assignedByUid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        (
+          isSuperAdmin() ||
+          (
+            request.auth.uid == existing().assigneeUid &&
+            existing().status != 'completed' &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']) &&
+            incoming().status in ['in_progress', 'completed']
+          )
+        );
+      allow delete: if isSuperAdmin() && isValidId(assignmentId);
+    }
+
+    match /museumArtworks/{slotId} {
+      allow get: if isVerifiedUser() && isValidId(slotId);
+      allow list: if isVerifiedUser() && resource.data.published == true;
+      allow create, update: if isSuperAdmin() && isValidId(slotId) &&
+        isValidMuseumArtwork(incoming(), slotId) &&
+        incoming().uploadedByUid == request.auth.uid &&
+        incoming().published == true &&
+        incoming().updatedAt == request.time;
+      allow delete: if isSuperAdmin() && isValidId(slotId);
+    }
+
+    match /museumMemories/{memoryId} {
+      allow get: if isVerifiedUser() && isValidId(memoryId);
+      allow list: if isVerifiedUser() && resource.data.deleted == false;
+      allow create: if isVerifiedUser() && isValidId(memoryId) &&
+        isValidMuseumMemory(incoming(), memoryId) &&
+        incoming().authorUid == request.auth.uid &&
+        incoming().deleted == false &&
+        incoming().createdAt == request.time;
+      allow update: if isVerifiedUser() && isValidId(memoryId) &&
+        isValidMuseumMemory(incoming(), memoryId) &&
+        (isSuperAdmin() || existing().authorUid == request.auth.uid) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['deleted']) &&
+        incoming().deleted == true;
+      allow delete: if isVerifiedUser() && isValidId(memoryId) && (isSuperAdmin() || existing().authorUid == request.auth.uid);
+    }
+  }
+}

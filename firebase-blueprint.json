@@ -1,0 +1,296 @@
+{
+  "entities": {
+    "StudentProfile": {
+      "title": "StudentProfile",
+      "description": "Private save state for an authenticated player in 8A3 Hoang Van Thu 3D.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "studentName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "isClassMember": { "type": "boolean" },
+        "hairStyle": { "type": "string", "enum": ["short_boy", "ponytail", "bob_cut", "spiky"] },
+        "hasGlasses": { "type": "boolean" },
+        "skinTone": { "type": "string", "maxLength": 20 },
+        "equippedUniform": { "type": "string", "enum": ["white_246", "green_35", "vip_8a3"] },
+        "equippedOutfit": { "type": "string", "enum": ["school_uniform", "street_hoodie", "bomber_ls", "sport_track", "formal_suit", "ao_dai_vn"] },
+        "equippedVehicle": { "type": "string", "enum": ["walk", "bike", "scooter", "motorbike", "car", "plane"] },
+        "equippedSupply": { "type": "string", "enum": ["basic_books", "casio_kit", "ergonomic_bag", "ipad_pro", "ar_workstation"] },
+        "isDelinquent": { "type": "boolean" },
+        "wearingHelmet": { "type": "boolean" },
+        "ownedUniforms": { "type": "array" },
+        "ownedOutfits": { "type": "array" },
+        "ownedVehicles": { "type": "array" },
+        "ownedSupplies": { "type": "array" },
+        "ownedStartups": { "type": "array" },
+        "money": { "type": "number" },
+        "energy": { "type": "number" },
+        "studyBuffLessons": { "type": "number" },
+        "xp": { "type": "number" },
+        "level": { "type": "number" },
+        "goodPoints": { "type": "number" },
+        "lessonsCompleted": { "type": "number" },
+        "goodDeedsCompleted": { "type": "number" },
+        "grabMissionsCompleted": { "type": "number" },
+        "streakDays": { "type": "number" },
+        "lastClaimedDateStr": { "type": "string", "maxLength": 20 },
+        "lastActiveDateStr": { "type": "string", "maxLength": 20 },
+        "vipClaimedThisWeek": { "type": "boolean" },
+        "weeklyScore": { "type": "number" },
+        "weekKey": { "type": "string", "maxLength": 20 },
+        "completedDeedIdsToday": { "type": "array" },
+        "jobsWorkedToday": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "uid", "studentName", "isClassMember", "hairStyle", "hasGlasses", "skinTone",
+        "equippedUniform", "equippedOutfit", "equippedVehicle", "equippedSupply",
+        "isDelinquent", "wearingHelmet",
+        "ownedUniforms", "ownedOutfits", "ownedVehicles", "ownedSupplies", "ownedStartups",
+        "money", "energy", "studyBuffLessons", "xp", "level", "goodPoints",
+        "lessonsCompleted", "goodDeedsCompleted", "grabMissionsCompleted",
+        "streakDays", "lastClaimedDateStr", "lastActiveDateStr",
+        "vipClaimedThisWeek", "weeklyScore", "weekKey",
+        "completedDeedIdsToday", "jobsWorkedToday", "createdAt", "updatedAt"
+      ]
+    },
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry",
+      "description": "Public weekly ranking entry for verified 8A3 students (no PII).",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "studentName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "isClassMember": { "type": "boolean" },
+        "level": { "type": "number" },
+        "weeklyScore": { "type": "number" },
+        "goodPoints": { "type": "number" },
+        "vehicleId": { "type": "string", "enum": ["walk", "bike", "scooter", "motorbike", "car", "plane"] },
+        "weekKey": { "type": "string", "maxLength": 20 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "studentName", "isClassMember", "level", "weeklyScore", "goodPoints", "vehicleId", "weekKey", "updatedAt"]
+    },
+    "SubAdminRole": {
+      "title": "SubAdminRole",
+      "description": "Sub-admin accounts appointed by the Super Admin using Google email and UID.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "maxLength": 120 },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "jobType": { "type": "string", "enum": ["teacher", "police", "disciplinarian", "event_manager", "custom"] },
+        "jobTitle": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "canMuteMic": { "type": "boolean" },
+        "canModerateChat": { "type": "boolean" },
+        "canIssueFine": { "type": "boolean" },
+        "assignedByUid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "displayName", "jobType", "jobTitle", "canMuteMic", "canModerateChat", "canIssueFine", "assignedByUid", "createdAt", "updatedAt"]
+    },
+    "ModerationState": {
+      "title": "ModerationState",
+      "description": "Mic and social chat mute status for a player.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "micMuted": { "type": "boolean" },
+        "chatMuted": { "type": "boolean" },
+        "reason": { "type": "string", "maxLength": 140 },
+        "mutedByUid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "mutedByName": { "type": "string", "maxLength": 60 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "micMuted", "chatMuted", "reason", "mutedByUid", "mutedByName", "updatedAt"]
+    },
+    "PlayerPresence": {
+      "title": "PlayerPresence",
+      "description": "Real-time 3D world position, appearance, role badge, mic state, and traffic violation alert (no PII).",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "studentName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "isClassMember": { "type": "boolean" },
+        "roleType": { "type": "string", "enum": ["super_admin", "sub_admin", "student", "visitor"] },
+        "roleLabel": { "type": "string", "maxLength": 40 },
+        "hairStyle": { "type": "string", "enum": ["short_boy", "ponytail", "bob_cut", "spiky"] },
+        "hasGlasses": { "type": "boolean" },
+        "skinTone": { "type": "string", "maxLength": 20 },
+        "equippedUniform": { "type": "string", "enum": ["white_246", "green_35", "vip_8a3"] },
+        "equippedOutfit": { "type": "string", "enum": ["school_uniform", "street_hoodie", "bomber_ls", "sport_track", "formal_suit", "ao_dai_vn"] },
+        "equippedVehicle": { "type": "string", "enum": ["walk", "bike", "scooter", "motorbike", "car", "plane"] },
+        "isDelinquent": { "type": "boolean" },
+        "wearingHelmet": { "type": "boolean" },
+        "isWheelie": { "type": "boolean" },
+        "isReckless": { "type": "boolean" },
+        "vipClaimed": { "type": "boolean" },
+        "x": { "type": "number" },
+        "z": { "type": "number" },
+        "rotY": { "type": "number" },
+        "micActive": { "type": "boolean" },
+        "micMuted": { "type": "boolean" },
+        "redLightViolationAt": { "type": "number" },
+        "helmetViolationAt": { "type": "number" },
+        "online": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "uid", "studentName", "isClassMember", "roleType", "roleLabel",
+        "hairStyle", "hasGlasses", "skinTone", "equippedUniform", "equippedOutfit", "equippedVehicle",
+        "isDelinquent", "wearingHelmet", "isWheelie", "isReckless",
+        "vipClaimed", "x", "z", "rotY", "micActive", "micMuted",
+        "redLightViolationAt", "helmetViolationAt", "online", "updatedAt"
+      ]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Social chat message in the 3D school & town.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "senderUid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "senderName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "senderRoleLabel": { "type": "string", "maxLength": 40 },
+        "text": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "deleted": { "type": "boolean" },
+        "createdAtMs": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "senderUid", "senderName", "senderRoleLabel", "text", "deleted", "createdAtMs", "createdAt"]
+    },
+    "RtcSignal": {
+      "title": "RtcSignal",
+      "description": "WebRTC offer/answer/ICE signaling packet for real-time voice mic.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "fromUid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "toUid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "type": { "type": "string", "enum": ["offer", "answer", "ice"] },
+        "payload": { "type": "string", "maxLength": 8000 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "fromUid", "toUid", "type", "payload", "createdAt"]
+    },
+    "TrafficPenalty": {
+      "title": "TrafficPenalty",
+      "description": "Traffic violation fine issued by a Police Sub-Admin or Super Admin.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "targetUid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "targetName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "issuedByUid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "issuedByName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "amount": { "type": "number" },
+        "status": { "type": "string", "enum": ["unpaid", "paid"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "targetUid", "targetName", "issuedByUid", "issuedByName", "reason", "amount", "status", "createdAt", "updatedAt"]
+    },
+    "AdminAssignment": {
+      "title": "AdminAssignment",
+      "description": "Duties and work assignments created by the Super Admin for Sub-Admins or students.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "assigneeUid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "assigneeName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "assignedByUid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "jobCategory": { "type": "string", "enum": ["teacher", "police", "discipline", "event", "other"] },
+        "rewardMoney": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "in_progress", "completed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "assigneeUid", "assigneeName", "assignedByUid", "title", "description", "jobCategory", "rewardMoney", "status", "createdAt", "updatedAt"]
+    },
+    "MuseumArtwork": {
+      "title": "MuseumArtwork",
+      "description": "Lang Son Museum Floor 1 paintings hung exclusively by the Super Admin.",
+      "type": "object",
+      "properties": {
+        "slotId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "section": { "type": "string", "enum": ["chi_lang", "tam_thanh", "mac_dynasty", "hoang_van_thu"] },
+        "title": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "caption": { "type": "string", "maxLength": 220 },
+        "imageDataUrl": { "type": "string", "minLength": 1, "maxLength": 200000 },
+        "uploadedByUid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "published": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["slotId", "section", "title", "caption", "imageDataUrl", "uploadedByUid", "published", "updatedAt"]
+    },
+    "MuseumMemory": {
+      "title": "MuseumMemory",
+      "description": "Lang Son Museum Floor 2 player photos, signatures, and memory wall notes.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "authorUid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "authorName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "authorRoleLabel": { "type": "string", "maxLength": 40 },
+        "message": { "type": "string", "maxLength": 180 },
+        "photoDataUrl": { "type": "string", "maxLength": 200000 },
+        "signatureDataUrl": { "type": "string", "maxLength": 120000 },
+        "cardColor": { "type": "string", "maxLength": 20 },
+        "deleted": { "type": "boolean" },
+        "createdAtMs": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "authorUid", "authorName", "authorRoleLabel", "message", "photoDataUrl", "signatureDataUrl", "cardColor", "deleted", "createdAtMs", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/students/{userId}": {
+      "schema": { "$ref": "#/entities/StudentProfile" },
+      "description": "Private student game state owned by authenticated user."
+    },
+    "/leaderboard/{userId}": {
+      "schema": { "$ref": "#/entities/LeaderboardEntry" },
+      "description": "Public weekly 8A3 leaderboard entries without PII."
+    },
+    "/subAdmins/{targetUid}": {
+      "schema": { "$ref": "#/entities/SubAdminRole" },
+      "description": "Sub-admin accounts appointed by the Super Admin."
+    },
+    "/moderation/{targetUid}": {
+      "schema": { "$ref": "#/entities/ModerationState" },
+      "description": "Voice mic and social chat moderation status."
+    },
+    "/presence/{userId}": {
+      "schema": { "$ref": "#/entities/PlayerPresence" },
+      "description": "Live multiplayer 3D positions and role badges."
+    },
+    "/chatMessages/{msgId}": {
+      "schema": { "$ref": "#/entities/ChatMessage" },
+      "description": "Real-time social chat messages."
+    },
+    "/rtcSignals/{signalId}": {
+      "schema": { "$ref": "#/entities/RtcSignal" },
+      "description": "WebRTC peer signaling documents."
+    },
+    "/penalties/{penaltyId}": {
+      "schema": { "$ref": "#/entities/TrafficPenalty" },
+      "description": "Traffic fines issued by Police Sub-Admins or Super Admin."
+    },
+    "/assignments/{assignmentId}": {
+      "schema": { "$ref": "#/entities/AdminAssignment" },
+      "description": "Work assignments delegated by Super Admin."
+    },
+    "/museumArtworks/{slotId}": {
+      "schema": { "$ref": "#/entities/MuseumArtwork" },
+      "description": "Lang Son Museum Floor 1 paintings managed by Super Admin."
+    },
+    "/museumMemories/{memoryId}": {
+      "schema": { "$ref": "#/entities/MuseumMemory" },
+      "description": "Lang Son Museum Floor 2 player memory photos & signatures."
+    }
+  }
+}
