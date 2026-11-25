@@ -13,6 +13,7 @@ import { SocialChatDrawer } from './components/SocialChatDrawer';
 import { TownVenueModal } from './components/TownVenueModal';
 import { WebcamScannerModal } from './components/WebcamScannerModal';
 import {
+  CLASS_8A3_ROSTER,
   createInitialPlayerState,
   findMatching8A3RosterName,
   formatVND,
@@ -170,6 +171,7 @@ function hydrateFromRemoteDoc(
     state: {
       look: {
         name: docData.studentName,
+        gender: docData.gender || 'male',
         faceDataUrl,
         hairStyle: docData.hairStyle || 'short_boy',
         hasGlasses: Boolean(docData.hasGlasses),
@@ -550,6 +552,7 @@ function MainApp() {
         isClassMember: playerState.isClassMember,
         roleType,
         roleLabel,
+        gender: playerState.look.gender || 'male',
         hairStyle: playerState.look.hairStyle,
         hasGlasses: playerState.look.hasGlasses,
         skinTone: playerState.look.skinTone,
@@ -575,6 +578,7 @@ function MainApp() {
       user,
       profileReady,
       playerState.look.name,
+      playerState.look.gender,
       playerState.look.hairStyle,
       playerState.look.hasGlasses,
       playerState.look.skinTone,
@@ -1524,7 +1528,7 @@ function MainApp() {
               <div className="flex items-start gap-2">
                 <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                 <span>
-                  Chỉ tài khoản đặt đúng <strong>Họ & Tên trong danh sách 48 học sinh lớp 8A3</strong> mới được học, làm nhiệm vụ và lên BXH. Tên khác sẽ vào chế độ <strong>Khách Tham Quan</strong>.
+                  Chỉ tài khoản đặt đúng <strong>Họ & Tên trong danh sách {CLASS_8A3_ROSTER.length} học sinh lớp 8A3</strong> mới được học, làm nhiệm vụ và lên BXH. Tên khác sẽ vào chế độ <strong>Khách Tham Quan</strong>.
                 </span>
               </div>
             </div>

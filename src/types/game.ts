@@ -1,5 +1,7 @@
 export type DayOfWeek = 2 | 3 | 4 | 5 | 6 | 7 | 8; // 2=Thứ 2 ... 7=Thứ 7, 8=Chủ Nhật
 
+export type GenderType = 'male' | 'female';
+
 export type UniformId = 'white_246' | 'green_35' | 'vip_8a3';
 
 export type OutfitId =
@@ -7,8 +9,14 @@ export type OutfitId =
   | 'street_hoodie'
   | 'bomber_ls'
   | 'sport_track'
-  | 'formal_suit'
-  | 'ao_dai_vn';
+  | 'korean_blazer'
+  | 'pleated_skirt'
+  | 'denim_jacket'
+  | 'pastel_cardigan'
+  | 'ao_dai_vn'
+  | 'ao_dai_white'
+  | 'princess_dress'
+  | 'formal_suit';
 
 export type VehicleId = 'walk' | 'bike' | 'scooter' | 'motorbike' | 'car' | 'plane';
 
@@ -16,7 +24,17 @@ export type SupplyId = 'basic_books' | 'casio_kit' | 'ergonomic_bag' | 'ipad_pro
 
 export type StartupId = 'sticker_shop' | 'snack_stand' | 'web_studio' | 'edtech_corp';
 
-export type HairStyleId = 'short_boy' | 'ponytail' | 'bob_cut' | 'spiky';
+export type HairStyleId =
+  | 'short_boy'
+  | 'spiky'
+  | 'side_part'
+  | 'curly_boy'
+  | 'undercut'
+  | 'ponytail'
+  | 'bob_cut'
+  | 'long_straight'
+  | 'twin_tails'
+  | 'high_bun';
 
 export type HubTab = 'uniform' | 'shop' | 'career' | 'streak' | 'leaderboard';
 
@@ -32,6 +50,7 @@ export type TrafficLightPhase = 'green' | 'yellow' | 'red';
 
 export interface CharacterLook {
   name: string;
+  gender: GenderType;
   faceDataUrl: string | null;
   hairStyle: HairStyleId;
   hasGlasses: boolean;
@@ -53,6 +72,7 @@ export interface OutfitDef {
   name: string;
   description: string;
   price: number;
+  genderTag: 'male' | 'female' | 'unisex';
   previewPrimary: string;
   previewSecondary: string;
 }
@@ -217,6 +237,7 @@ export interface ModerationState {
 export interface PlayerPresence {
   uid: string;
   studentName: string;
+  gender: GenderType;
   isClassMember: boolean;
   roleType: RoleType;
   roleLabel: string;

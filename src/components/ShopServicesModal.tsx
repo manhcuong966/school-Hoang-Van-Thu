@@ -22,7 +22,13 @@ export const ShopServicesModal: React.FC<ShopServicesModalProps> = ({
   onBuyVendingDrink,
   onClose,
 }) => {
+  const [genderFilter, setGenderFilter] = React.useState<'all' | 'female' | 'male' | 'unisex'>('all');
+
   if (!mode) return null;
+
+  const filteredOutfits = OUTFITS.filter(
+    (item) => genderFilter === 'all' || item.genderTag === genderFilter
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/88 p-4 overflow-y-auto">
@@ -77,75 +83,116 @@ export const ShopServicesModal: React.FC<ShopServicesModalProps> = ({
           )}
 
           {mode === 'clothing_shop' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {OUTFITS.map((item) => {
-                const owned = playerState.ownedOutfits.includes(item.id);
-                const equipped = playerState.equippedOutfit === item.id;
-                const canAfford = playerState.money >= item.price;
-
-                return (
-                  <div
-                    key={item.id}
-                    className={`rounded-xl border p-4 flex flex-col justify-between gap-3 ${
-                      equipped
-                        ? 'bg-pink-950/25 border-pink-400/70'
-                        : 'bg-slate-950 border-slate-800'
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                {(
+                  [
+                    { id: 'all', label: `Tất cả (${OUTFITS.length})` },
+                    { id: 'female', label: 'Đồ Nữ sinh' },
+                    { id: 'male', label: 'Đồ Nam sinh' },
+                    { id: 'unisex', label: 'Nam & Nữ (Unisex)' },
+                  ] as const
+                ).map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setGenderFilter(tab.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                      genderFilter === tab.id
+                        ? 'bg-pink-500/20 border-pink-400 text-pink-200'
+                        : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
                     }`}
                   >
-                    <div className="space-y-2.5">
-                      <div className="h-20 rounded-lg border border-slate-800 overflow-hidden flex items-center justify-center bg-slate-900 gap-2 p-2">
-                        <div
-                          className="w-12 h-12 rounded-lg border border-white/20 shadow-inner"
-                          style={{ backgroundColor: item.previewPrimary }}
-                        />
-                        <div
-                          className="w-7 h-12 rounded-lg border border-white/20 shadow-inner"
-                          style={{ backgroundColor: item.previewSecondary }}
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-display font-bold text-sm text-white">
-                          {item.name}
-                        </h3>
-                        <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
 
-                    {owned ? (
-                      <button
-                        type="button"
-                        disabled={equipped || !hasFullAccess}
-                        onClick={() => onBuyOrEquipOutfit(item.id)}
-                        className={`w-full py-2 px-3 rounded-lg text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors ${
-                          equipped
-                            ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 cursor-default'
-                            : !hasFullAccess
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {filteredOutfits.map((item) => {
+                  const owned = playerState.ownedOutfits.includes(item.id);
+                  const equipped = playerState.equippedOutfit === item.id;
+                  const canAfford = playerState.money >= item.price;
+                  const tagText =
+                    item.genderTag === 'female'
+                      ? 'Dành cho Nữ'
+                      : item.genderTag === 'male'
+                        ? 'Dành cho Nam'
+                        : 'Nam & Nữ';
+                  const tagColor =
+                    item.genderTag === 'female'
+                      ? 'text-pink-300'
+                      : item.genderTag === 'male'
+                        ? 'text-sky-300'
+                        : 'text-lime-300';
+
+                  return (
+                    <div
+                      key={item.id}
+                      className={`rounded-xl border p-4 flex flex-col justify-between gap-3 ${
+                        equipped
+                          ? 'bg-pink-950/25 border-pink-400/70'
+                          : 'bg-slate-950 border-slate-800'
+                      }`}
+                    >
+                      <div className="space-y-2.5">
+                        <div className="h-20 rounded-lg border border-slate-800 overflow-hidden flex items-center justify-center bg-slate-900 gap-2 p-2 relative">
+                          <div
+                            className="w-12 h-12 rounded-lg border border-white/20 shadow-inner"
+                            style={{ backgroundColor: item.previewPrimary }}
+                          />
+                          <div
+                            className="w-7 h-12 rounded-lg border border-white/20 shadow-inner"
+                            style={{ backgroundColor: item.previewSecondary }}
+                          />
+                          <span className={`absolute top-1.5 right-2 text-[10px] font-bold ${tagColor}`}>
+                            {tagText}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="font-display font-bold text-sm text-white">
+                            {item.name}
+                          </h3>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      {owned ? (
+                        <button
+                          type="button"
+                          disabled={equipped || !hasFullAccess}
+                          onClick={() => onBuyOrEquipOutfit(item.id)}
+                          className={`w-full py-2 px-3 rounded-lg text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors ${
+                            equipped
+                              ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 cursor-default'
+                              : !hasFullAccess
+                                ? 'bg-slate-900 border border-slate-800 text-slate-500 cursor-not-allowed'
+                                : 'bg-pink-500 hover:bg-pink-400 text-white'
+                          }`}
+                        >
+                          {equipped && <Check className="w-3.5 h-3.5" />}
+                          <span>{equipped ? 'Đang mặc' : 'Mặc trang phục này'}</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={!hasFullAccess || !canAfford}
+                          onClick={() => onBuyOrEquipOutfit(item.id)}
+                          className={`w-full py-2 px-3 rounded-lg text-xs font-bold font-mono-nums transition-colors ${
+                            !hasFullAccess || !canAfford
                               ? 'bg-slate-900 border border-slate-800 text-slate-500 cursor-not-allowed'
-                              : 'bg-pink-500 hover:bg-pink-400 text-white'
-                        }`}
-                      >
-                        {equipped && <Check className="w-3.5 h-3.5" />}
-                        <span>{equipped ? 'Đang mặc' : 'Mặc trang phục này'}</span>
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled={!hasFullAccess || !canAfford}
-                        onClick={() => onBuyOrEquipOutfit(item.id)}
-                        className={`w-full py-2 px-3 rounded-lg text-xs font-bold font-mono-nums transition-colors ${
-                          !hasFullAccess || !canAfford
-                            ? 'bg-slate-900 border border-slate-800 text-slate-500 cursor-not-allowed'
-                            : 'bg-amber-400 hover:bg-amber-300 text-slate-950'
-                        }`}
-                      >
-                        {!hasFullAccess ? 'Chỉ dành cho 8A3' : `Mua ${formatVND(item.price)}`}
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
+                              : 'bg-amber-400 hover:bg-amber-300 text-slate-950'
+                          }`}
+                        >
+                          {!hasFullAccess ? 'Chỉ dành cho 8A3' : `Mua ${formatVND(item.price)}`}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 

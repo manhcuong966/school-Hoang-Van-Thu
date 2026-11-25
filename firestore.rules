@@ -45,7 +45,7 @@ service cloud.firestore {
 
     function isValidStudent(data, uidParam) {
       return data.keys().hasAll([
-          'uid', 'studentName', 'isClassMember', 'hairStyle', 'hasGlasses', 'skinTone',
+          'uid', 'studentName', 'isClassMember', 'gender', 'hairStyle', 'hasGlasses', 'skinTone',
           'equippedUniform', 'equippedOutfit', 'equippedVehicle', 'equippedSupply',
           'isDelinquent', 'wearingHelmet',
           'ownedUniforms', 'ownedOutfits', 'ownedVehicles', 'ownedSupplies', 'ownedStartups',
@@ -56,7 +56,7 @@ service cloud.firestore {
           'completedDeedIdsToday', 'jobsWorkedToday', 'createdAt', 'updatedAt'
         ]) &&
         data.keys().hasOnly([
-          'uid', 'studentName', 'isClassMember', 'hairStyle', 'hasGlasses', 'skinTone',
+          'uid', 'studentName', 'isClassMember', 'gender', 'hairStyle', 'hasGlasses', 'skinTone',
           'equippedUniform', 'equippedOutfit', 'equippedVehicle', 'equippedSupply',
           'isDelinquent', 'wearingHelmet',
           'ownedUniforms', 'ownedOutfits', 'ownedVehicles', 'ownedSupplies', 'ownedStartups',
@@ -70,17 +70,18 @@ service cloud.firestore {
         data.uid == uidParam &&
         data.studentName is string && data.studentName.size() >= 1 && data.studentName.size() <= 60 &&
         data.isClassMember is bool &&
-        data.hairStyle in ['short_boy', 'ponytail', 'bob_cut', 'spiky'] &&
+        data.gender in ['male', 'female'] &&
+        data.hairStyle in ['short_boy', 'spiky', 'side_part', 'curly_boy', 'undercut', 'ponytail', 'bob_cut', 'long_straight', 'twin_tails', 'high_bun'] &&
         data.hasGlasses is bool &&
         data.skinTone is string && data.skinTone.size() > 0 && data.skinTone.size() <= 20 &&
         data.equippedUniform in ['white_246', 'green_35', 'vip_8a3'] &&
-        data.equippedOutfit in ['school_uniform', 'street_hoodie', 'bomber_ls', 'sport_track', 'formal_suit', 'ao_dai_vn'] &&
+        data.equippedOutfit in ['school_uniform', 'street_hoodie', 'bomber_ls', 'sport_track', 'korean_blazer', 'pleated_skirt', 'denim_jacket', 'pastel_cardigan', 'ao_dai_vn', 'ao_dai_white', 'princess_dress', 'formal_suit'] &&
         data.equippedVehicle in ['walk', 'bike', 'scooter', 'motorbike', 'car', 'plane'] &&
         data.equippedSupply in ['basic_books', 'casio_kit', 'ergonomic_bag', 'ipad_pro', 'ar_workstation'] &&
         data.isDelinquent is bool &&
         data.wearingHelmet is bool &&
         isValidStringList(data.ownedUniforms, 10) &&
-        isValidStringList(data.ownedOutfits, 10) &&
+        isValidStringList(data.ownedOutfits, 16) &&
         isValidStringList(data.ownedVehicles, 10) &&
         isValidStringList(data.ownedSupplies, 10) &&
         isValidStringList(data.ownedStartups, 10) &&
@@ -169,14 +170,14 @@ service cloud.firestore {
     function isValidPresence(data, uidParam) {
       return data.keys().hasAll([
           'uid', 'studentName', 'isClassMember', 'roleType', 'roleLabel',
-          'hairStyle', 'hasGlasses', 'skinTone', 'equippedUniform', 'equippedOutfit', 'equippedVehicle',
+          'gender', 'hairStyle', 'hasGlasses', 'skinTone', 'equippedUniform', 'equippedOutfit', 'equippedVehicle',
           'isDelinquent', 'wearingHelmet', 'isWheelie', 'isReckless',
           'vipClaimed', 'x', 'z', 'rotY', 'micActive', 'micMuted',
           'redLightViolationAt', 'helmetViolationAt', 'online', 'updatedAt'
         ]) &&
         data.keys().hasOnly([
           'uid', 'studentName', 'isClassMember', 'roleType', 'roleLabel',
-          'hairStyle', 'hasGlasses', 'skinTone', 'equippedUniform', 'equippedOutfit', 'equippedVehicle',
+          'gender', 'hairStyle', 'hasGlasses', 'skinTone', 'equippedUniform', 'equippedOutfit', 'equippedVehicle',
           'isDelinquent', 'wearingHelmet', 'isWheelie', 'isReckless',
           'vipClaimed', 'x', 'z', 'rotY', 'micActive', 'micMuted',
           'redLightViolationAt', 'helmetViolationAt', 'online', 'updatedAt'
@@ -189,11 +190,12 @@ service cloud.firestore {
         (data.roleType != 'super_admin' || isSuperAdmin()) &&
         (data.roleType != 'sub_admin' || isSubAdmin()) &&
         data.roleLabel is string && data.roleLabel.size() <= 40 &&
-        data.hairStyle in ['short_boy', 'ponytail', 'bob_cut', 'spiky'] &&
+        data.gender in ['male', 'female'] &&
+        data.hairStyle in ['short_boy', 'spiky', 'side_part', 'curly_boy', 'undercut', 'ponytail', 'bob_cut', 'long_straight', 'twin_tails', 'high_bun'] &&
         data.hasGlasses is bool &&
         data.skinTone is string && data.skinTone.size() > 0 && data.skinTone.size() <= 20 &&
         data.equippedUniform in ['white_246', 'green_35', 'vip_8a3'] &&
-        data.equippedOutfit in ['school_uniform', 'street_hoodie', 'bomber_ls', 'sport_track', 'formal_suit', 'ao_dai_vn'] &&
+        data.equippedOutfit in ['school_uniform', 'street_hoodie', 'bomber_ls', 'sport_track', 'korean_blazer', 'pleated_skirt', 'denim_jacket', 'pastel_cardigan', 'ao_dai_vn', 'ao_dai_white', 'princess_dress', 'formal_suit'] &&
         data.equippedVehicle in ['walk', 'bike', 'scooter', 'motorbike', 'car', 'plane'] &&
         data.isDelinquent is bool &&
         data.wearingHelmet is bool &&
@@ -340,7 +342,7 @@ service cloud.firestore {
         incoming().createdAt == existing().createdAt &&
         incoming().updatedAt == request.time &&
         incoming().diff(existing()).affectedKeys().hasOnly([
-          'studentName', 'isClassMember', 'hairStyle', 'hasGlasses', 'skinTone',
+          'studentName', 'isClassMember', 'gender', 'hairStyle', 'hasGlasses', 'skinTone',
           'equippedUniform', 'equippedOutfit', 'equippedVehicle', 'equippedSupply',
           'isDelinquent', 'wearingHelmet',
           'ownedUniforms', 'ownedOutfits', 'ownedVehicles', 'ownedSupplies', 'ownedStartups',

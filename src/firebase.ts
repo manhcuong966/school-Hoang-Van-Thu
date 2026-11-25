@@ -25,6 +25,7 @@ import firebaseConfig from '../firebase-applet-config.json';
 import {
   AdminAssignment,
   ChatMessage,
+  GenderType,
   LeaderboardEntry,
   ModerationState,
   MuseumArtwork,
@@ -130,6 +131,7 @@ export interface RemoteStudentDoc {
   isClassMember: boolean;
   isDelinquent?: boolean;
   wearingHelmet?: boolean;
+  gender?: GenderType;
   hairStyle: PlayerState['look']['hairStyle'];
   hasGlasses: boolean;
   skinTone: string;
@@ -187,6 +189,7 @@ export async function saveStudentProfile(
     isClassMember: Boolean(state.isClassMember),
     isDelinquent: Boolean(state.isDelinquent),
     wearingHelmet: Boolean(state.wearingHelmet),
+    gender: state.look.gender || 'male',
     hairStyle: state.look.hairStyle,
     hasGlasses: Boolean(state.look.hasGlasses),
     skinTone: state.look.skinTone.slice(0, 20),
@@ -195,7 +198,7 @@ export async function saveStudentProfile(
     equippedVehicle: state.equippedVehicle,
     equippedSupply: state.equippedSupply,
     ownedUniforms: state.ownedUniforms.slice(0, 10),
-    ownedOutfits: (state.ownedOutfits?.length ? state.ownedOutfits : ['school_uniform']).slice(0, 12),
+    ownedOutfits: (state.ownedOutfits?.length ? state.ownedOutfits : ['school_uniform']).slice(0, 16),
     ownedVehicles: state.ownedVehicles.slice(0, 10),
     ownedSupplies: state.ownedSupplies.slice(0, 10),
     ownedStartups: state.ownedStartups.slice(0, 10),
@@ -505,6 +508,7 @@ export async function publishPresence(
       isClassMember: Boolean(data.isClassMember),
       roleType: data.roleType,
       roleLabel: (data.roleLabel || '').slice(0, 40),
+      gender: data.gender || 'male',
       hairStyle: data.hairStyle,
       hasGlasses: Boolean(data.hasGlasses),
       skinTone: data.skinTone.slice(0, 20),

@@ -487,12 +487,14 @@ export const SchoolViewport3D: React.FC<SchoolViewport3DProps> = ({
         (needsHel && !rp.wearingHelmet) ||
         (rp.helmetViolationAt > 0 && now - rp.helmetViolationAt < 60000);
       const rpOutfit: OutfitId = rp.equippedOutfit || 'school_uniform';
-      const hairKey = `${rp.hairStyle}|${rp.hasGlasses}|${rp.skinTone}|${rp.vipClaimed}`;
+      const rpGender = rp.gender || 'male';
+      const hairKey = `${rpGender}|${rp.hairStyle}|${rp.hasGlasses}|${rp.skinTone}|${rp.vipClaimed}`;
       let entry = map.get(rp.uid);
       if (!entry) {
         const rig = createStudentRig(
           {
             name: rp.studentName,
+            gender: rpGender,
             faceDataUrl: null,
             hairStyle: rp.hairStyle,
             hasGlasses: rp.hasGlasses,
@@ -566,6 +568,7 @@ export const SchoolViewport3D: React.FC<SchoolViewport3DProps> = ({
           entry.rig.updateLook(
             {
               name: rp.studentName,
+              gender: rpGender,
               faceDataUrl: null,
               hairStyle: rp.hairStyle,
               hasGlasses: rp.hasGlasses,
@@ -867,14 +870,15 @@ export const SchoolViewport3D: React.FC<SchoolViewport3DProps> = ({
     const reqInit = getRequiredUniformForDay(dayOfWeekRef.current);
     const initNpcUniform: UniformId = reqInit.required === 'any' ? 'white_246' : reqInit.required;
     const npcConfigs = [
-      { name: 'Minh Anh', x: -3.5, z: 12, hair: 'ponytail' as const, glasses: false, wander: true },
-      { name: 'Gia Bảo', x: 5.5, z: 10, hair: 'short_boy' as const, glasses: true, wander: true },
-      { name: 'Khánh Linh', x: -16.8, z: 0.5, hair: 'bob_cut' as const, glasses: false, wander: false },
+      { name: 'Minh Anh', gender: 'female' as const, x: -3.5, z: 12, hair: 'long_straight' as const, glasses: false, wander: true },
+      { name: 'Gia Bảo', gender: 'male' as const, x: 5.5, z: 10, hair: 'side_part' as const, glasses: true, wander: true },
+      { name: 'Khánh Linh', gender: 'female' as const, x: -16.8, z: 0.5, hair: 'twin_tails' as const, glasses: false, wander: false },
     ];
     npcRigsRef.current = npcConfigs.map((cfg, idx) => {
       const rig = createStudentRig(
         {
           name: cfg.name,
+          gender: cfg.gender,
           faceDataUrl: null,
           hairStyle: cfg.hair,
           hasGlasses: cfg.glasses,

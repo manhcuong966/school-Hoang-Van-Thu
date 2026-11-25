@@ -140,6 +140,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 <span className="text-lime-300 font-bold font-mono-nums">
                   Level {playerState.level} ({getLevelTitle(playerState.level)})
                 </span>
+                <span className="text-slate-600">·</span>
+                <span className={playerState.look.gender === 'female' ? 'text-pink-300 font-semibold' : 'text-sky-300 font-semibold'}>
+                  {playerState.look.gender === 'female' ? 'Nhân vật Nữ' : 'Nhân vật Nam'}
+                </span>
                 {playerState.isDelinquent && (
                   <>
                     <span className="text-slate-600">·</span>

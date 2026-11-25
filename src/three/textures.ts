@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OutfitId, UniformId } from '../types/game';
+import { GenderType, OutfitId, UniformId } from '../types/game';
 
 function configureColorTexture(tex: THREE.CanvasTexture, maxAniso: number, repeatX = 1, repeatY = 1) {
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -467,6 +467,136 @@ export function createOutfitTorsoTexture(outfitId: OutfitId, maxAniso: number): 
     ctx.beginPath();
     ctx.arc(256, 150, 34, 0, Math.PI * 2);
     ctx.stroke();
+  } else if (outfitId === 'korean_blazer') {
+    ctx.fillStyle = '#d6b48a';
+    ctx.fillRect(0, 0, 512, 512);
+    // White shirt V + plaid tie
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.moveTo(190, 0);
+    ctx.lineTo(322, 0);
+    ctx.lineTo(256, 220);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(242, 34, 28, 165);
+    ctx.strokeStyle = '#92400e';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(20, 20, 472, 472);
+    // Gold school crest
+    ctx.fillStyle = '#fef08a';
+    ctx.beginPath();
+    ctx.arc(352, 175, 28, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (outfitId === 'pleated_skirt') {
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, 512, 512);
+    // Navy sailor collar + crimson ribbon bow
+    ctx.fillStyle = '#1e3a8a';
+    ctx.beginPath();
+    ctx.moveTo(135, 0);
+    ctx.lineTo(377, 0);
+    ctx.lineTo(335, 118);
+    ctx.lineTo(256, 75);
+    ctx.lineTo(177, 118);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+    // Bow knot
+    ctx.fillStyle = '#e11d48';
+    ctx.beginPath();
+    ctx.moveTo(256, 95);
+    ctx.lineTo(200, 68);
+    ctx.lineTo(200, 125);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(256, 95);
+    ctx.lineTo(312, 68);
+    ctx.lineTo(312, 125);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillRect(242, 82, 28, 28);
+    ctx.fillRect(236, 110, 16, 80);
+    ctx.fillRect(260, 110, 16, 80);
+  } else if (outfitId === 'denim_jacket') {
+    ctx.fillStyle = '#1d4ed8';
+    ctx.fillRect(0, 0, 512, 512);
+    // White tee center strip
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(190, 0, 132, 512);
+    // Denim stitching & pockets
+    ctx.strokeStyle = '#facc15';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([12, 8]);
+    ctx.strokeRect(32, 120, 132, 120);
+    ctx.strokeRect(348, 120, 132, 120);
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#1e293b';
+    ctx.font = '800 32px Outfit, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('8A3', 256, 200);
+  } else if (outfitId === 'pastel_cardigan') {
+    ctx.fillStyle = '#c084fc';
+    ctx.fillRect(0, 0, 512, 512);
+    // Cream inner blouse
+    ctx.fillStyle = '#fdf2f8';
+    ctx.beginPath();
+    ctx.moveTo(186, 0);
+    ctx.lineTo(326, 0);
+    ctx.lineTo(256, 240);
+    ctx.closePath();
+    ctx.fill();
+    // Pearl buttons
+    ctx.fillStyle = '#ffffff';
+    for (let y = 250; y <= 430; y += 60) {
+      ctx.beginPath();
+      ctx.arc(256, y, 10, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Cute heart patch
+    ctx.fillStyle = '#f43f5e';
+    ctx.beginPath();
+    ctx.arc(365, 165, 16, 0, Math.PI * 2);
+    ctx.arc(390, 165, 16, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (outfitId === 'ao_dai_white') {
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, 512, 512);
+    ctx.fillStyle = '#f472b6';
+    ctx.fillRect(180, 0, 152, 42);
+    // Delicate pink lotus motif
+    ctx.fillStyle = '#f9a8d4';
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.arc(348, 165 + i * 56, 16 - i * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.strokeStyle = '#fbcfe8';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(24, 42, 464, 446);
+  } else if (outfitId === 'princess_dress') {
+    ctx.fillStyle = '#0d9488';
+    ctx.fillRect(0, 0, 512, 512);
+    // Sweetheart bodice & gold embroidery
+    ctx.fillStyle = '#5eead4';
+    ctx.beginPath();
+    ctx.moveTo(150, 0);
+    ctx.lineTo(362, 0);
+    ctx.lineTo(310, 130);
+    ctx.lineTo(256, 95);
+    ctx.lineTo(202, 130);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(0, 405, 512, 26);
+    for (let x = 80; x <= 432; x += 68) {
+      ctx.beginPath();
+      ctx.arc(x, 275, 10, 0, Math.PI * 2);
+      ctx.fill();
+    }
   } else {
     // formal_suit
     ctx.fillStyle = '#0f172a';
@@ -499,7 +629,8 @@ export function createOutfitTorsoTexture(outfitId: OutfitId, maxAniso: number): 
 export function createDefaultFaceTexture(
   skinTone: string,
   hasGlasses: boolean,
-  maxAniso: number
+  maxAniso: number,
+  gender: GenderType = 'male'
 ): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 256;
@@ -510,15 +641,15 @@ export function createDefaultFaceTexture(
   ctx.fillRect(0, 0, 256, 256);
 
   // Cheeks
-  ctx.fillStyle = 'rgba(244, 114, 182, 0.25)';
+  ctx.fillStyle = gender === 'female' ? 'rgba(244, 114, 182, 0.38)' : 'rgba(244, 114, 182, 0.25)';
   ctx.beginPath();
-  ctx.arc(68, 152, 22, 0, Math.PI * 2);
-  ctx.arc(188, 152, 22, 0, Math.PI * 2);
+  ctx.arc(68, 152, gender === 'female' ? 25 : 22, 0, Math.PI * 2);
+  ctx.arc(188, 152, gender === 'female' ? 25 : 22, 0, Math.PI * 2);
   ctx.fill();
 
   // Eyebrows
   ctx.strokeStyle = '#1e293b';
-  ctx.lineWidth = 7;
+  ctx.lineWidth = gender === 'female' ? 5 : 7;
   ctx.lineCap = 'round';
   ctx.beginPath();
   ctx.moveTo(64, 96);
@@ -530,14 +661,26 @@ export function createDefaultFaceTexture(
   // Eyes
   ctx.fillStyle = '#0f172a';
   ctx.beginPath();
-  ctx.arc(84, 122, 12, 0, Math.PI * 2);
-  ctx.arc(172, 122, 12, 0, Math.PI * 2);
+  ctx.arc(84, 122, gender === 'female' ? 13 : 12, 0, Math.PI * 2);
+  ctx.arc(172, 122, gender === 'female' ? 13 : 12, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.arc(88, 118, 4, 0, Math.PI * 2);
-  ctx.arc(176, 118, 4, 0, Math.PI * 2);
+  ctx.arc(88, 118, 4.5, 0, Math.PI * 2);
+  ctx.arc(176, 118, 4.5, 0, Math.PI * 2);
   ctx.fill();
+
+  if (gender === 'female') {
+    // Delicate eyelashes
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(70, 114);
+    ctx.lineTo(62, 106);
+    ctx.moveTo(186, 114);
+    ctx.lineTo(194, 106);
+    ctx.stroke();
+  }
 
   // Glasses if enabled
   if (hasGlasses) {
@@ -552,7 +695,7 @@ export function createDefaultFaceTexture(
   }
 
   // Smile
-  ctx.strokeStyle = '#9f1239';
+  ctx.strokeStyle = gender === 'female' ? '#e11d48' : '#9f1239';
   ctx.lineWidth = 7;
   ctx.beginPath();
   ctx.arc(128, 174, 28, 0.15 * Math.PI, 0.85 * Math.PI);

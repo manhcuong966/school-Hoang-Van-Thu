@@ -1,5 +1,13 @@
 import * as THREE from 'three';
-import { CharacterLook, OutfitId, RoleType, SupplyId, UniformId, VehicleId } from '../types/game';
+import {
+  CharacterLook,
+  GenderType,
+  OutfitId,
+  RoleType,
+  SupplyId,
+  UniformId,
+  VehicleId,
+} from '../types/game';
 import {
   createContactShadowTexture,
   createDefaultFaceTexture,
@@ -47,6 +55,8 @@ export interface StudentRig {
 function buildHairGroup(style: CharacterLook['hairStyle']): THREE.Group {
   const g = new THREE.Group();
   const hairMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.78 });
+  const ribbonMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e, roughness: 0.4 });
+  const bandMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.42 });
 
   // Top cap
   const top = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.14, 0.56), hairMat);
@@ -70,23 +80,95 @@ function buildHairGroup(style: CharacterLook['hairStyle']): THREE.Group {
       spike.rotation.x = 0.25;
       g.add(spike);
     }
+  } else if (style === 'side_part') {
+    const sweepLeft = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.12, 0.18), hairMat);
+    sweepLeft.position.set(-0.08, 0.22, 0.22);
+    sweepLeft.rotation.z = 0.18;
+    const sweepRight = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.1, 0.16), hairMat);
+    sweepRight.position.set(0.18, 0.21, 0.22);
+    sweepRight.rotation.z = -0.24;
+    const crownVolume = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.08, 0.48), hairMat);
+    crownVolume.position.set(0, 0.32, 0.02);
+    g.add(sweepLeft, sweepRight, crownVolume);
+  } else if (style === 'curly_boy') {
+    const curlOffsets: Array<[number, number, number, number]> = [
+      [-0.18, 0.31, 0.14, 0.13],
+      [0, 0.34, 0.15, 0.14],
+      [0.18, 0.31, 0.14, 0.13],
+      [-0.22, 0.29, -0.05, 0.13],
+      [0.22, 0.29, -0.05, 0.13],
+      [0, 0.34, -0.08, 0.14],
+      [-0.14, 0.24, 0.24, 0.1],
+      [0.14, 0.24, 0.24, 0.1],
+    ];
+    curlOffsets.forEach(([x, y, z, r]) => {
+      const curl = new THREE.Mesh(new THREE.SphereGeometry(r, 8, 8), hairMat);
+      curl.position.set(x, y, z);
+      g.add(curl);
+    });
+  } else if (style === 'undercut') {
+    const quiff = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.16, 0.46), hairMat);
+    quiff.position.set(0, 0.33, 0.06);
+    quiff.rotation.x = -0.15;
+    const frontWave = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.12, 0.16), hairMat);
+    frontWave.position.set(0, 0.27, 0.25);
+    frontWave.rotation.x = -0.28;
+    g.add(quiff, frontWave);
   } else if (style === 'bob_cut') {
     [-0.27, 0.27].forEach((sx) => {
       const side = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.44, 0.48), hairMat);
       side.position.set(sx, -0.02, -0.02);
       g.add(side);
     });
+    const bangs = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.09, 0.12), hairMat);
+    bangs.position.set(0, 0.21, 0.24);
+    g.add(bangs);
   } else if (style === 'ponytail') {
-    const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.06, 0.45, 8), hairMat);
-    tail.position.set(0, 0.05, -0.36);
+    const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.06, 0.48, 8), hairMat);
+    tail.position.set(0, 0.04, -0.36);
     tail.rotation.x = 0.45;
     g.add(tail);
-    const band = new THREE.Mesh(
-      new THREE.TorusGeometry(0.09, 0.025, 6, 12),
-      new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 })
-    );
+    const band = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.028, 6, 12), ribbonMat);
     band.position.set(0, 0.2, -0.31);
     g.add(band);
+    const bangs = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.08, 0.12), hairMat);
+    bangs.position.set(0, 0.21, 0.24);
+    g.add(bangs);
+  } else if (style === 'long_straight') {
+    const longBack = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.78, 0.12), hairMat);
+    longBack.position.set(0, -0.18, -0.25);
+    longBack.castShadow = true;
+    g.add(longBack);
+    [-0.27, 0.27].forEach((sx) => {
+      const sideLock = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.62, 0.24), hairMat);
+      sideLock.position.set(sx, -0.1, 0.06);
+      g.add(sideLock);
+    });
+    const headband = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.06, 0.1), bandMat);
+    headband.position.set(0, 0.31, 0.08);
+    const bangs = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.08, 0.12), hairMat);
+    bangs.position.set(0, 0.21, 0.24);
+    g.add(headband, bangs);
+  } else if (style === 'twin_tails') {
+    const bangs = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.08, 0.12), hairMat);
+    bangs.position.set(0, 0.21, 0.24);
+    g.add(bangs);
+    [-1, 1].forEach((side) => {
+      const tie = new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 8), ribbonMat);
+      tie.position.set(side * 0.31, 0.18, -0.05);
+      const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.05, 0.56, 8), hairMat);
+      tail.position.set(side * 0.38, -0.08, -0.06);
+      tail.rotation.z = side * 0.24;
+      g.add(tie, tail);
+    });
+  } else if (style === 'high_bun') {
+    const bangs = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.08, 0.12), hairMat);
+    bangs.position.set(0, 0.21, 0.24);
+    const bun = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 10), hairMat);
+    bun.position.set(0, 0.42, -0.06);
+    const bow = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.07, 0.08), ribbonMat);
+    bow.position.set(0, 0.33, 0.09);
+    g.add(bangs, bun, bow);
   }
 
   return g;
@@ -417,9 +499,10 @@ export function createStudentRig(
   const bodyGroup = new THREE.Group();
   root.add(bodyGroup);
 
+  const initialGender: GenderType = initialLook.gender || 'male';
   const skinMat = new THREE.MeshStandardMaterial({ color: initialLook.skinTone, roughness: 0.72 });
   const faceMat = new THREE.MeshStandardMaterial({
-    map: createDefaultFaceTexture(initialLook.skinTone, initialLook.hasGlasses, maxAniso),
+    map: createDefaultFaceTexture(initialLook.skinTone, initialLook.hasGlasses, maxAniso, initialGender),
     roughness: 0.65,
   });
   const torsoFrontMat = new THREE.MeshStandardMaterial({
@@ -435,6 +518,7 @@ export function createStudentRig(
     roughness: 0.7,
   });
   const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.85 });
+  const skirtMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.78 });
   const shoeMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.55 });
 
   // Head Group (front +Z uses faceMat)
@@ -544,6 +628,16 @@ export function createStudentRig(
   const rightLeg = makeLeg(1);
   bodyGroup.add(leftLeg, rightLeg);
 
+  // Pleated Skirt & Tunic Skirt Group (visible for Female / Skirt outfits)
+  const skirtMesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.25, 0.36, 0.36, 12),
+    skirtMat
+  );
+  skirtMesh.position.set(0, 0.64, 0);
+  skirtMesh.castShadow = true;
+  skirtMesh.visible = initialGender === 'female';
+  bodyGroup.add(skirtMesh);
+
   // Supply Mount
   const supplyMount = new THREE.Group();
   supplyMount.add(buildSupplyProp(initialSupply));
@@ -556,7 +650,32 @@ export function createStudentRig(
   let activePropeller: THREE.Object3D | null = null;
   let seatYOffset = 0;
 
+  let currentGender: GenderType = initialGender;
+  let currentSkinTone: string = initialLook.skinTone;
+  let currentUniform: UniformId = initialUniform;
+  let currentOutfit: OutfitId = 'school_uniform';
+  let currentVehicle: VehicleId = initialVehicle;
+
+  const syncSkirtVisibility = () => {
+    const insideCockpit = currentVehicle === 'car' || currentVehicle === 'plane';
+    const isFemaleOutfit =
+      currentOutfit === 'pleated_skirt' ||
+      currentOutfit === 'pastel_cardigan' ||
+      currentOutfit === 'princess_dress' ||
+      (currentGender === 'female' &&
+        (currentOutfit === 'school_uniform' || currentOutfit === 'korean_blazer'));
+    skirtMesh.visible = !insideCockpit && isFemaleOutfit;
+    if (currentOutfit === 'princess_dress') {
+      skirtMesh.scale.set(1.22, 1.35, 1.22);
+      skirtMesh.position.y = 0.56;
+    } else {
+      skirtMesh.scale.set(1, 1, 1);
+      skirtMesh.position.y = 0.64;
+    }
+  };
+
   const applyVehicle = (vId: VehicleId) => {
+    currentVehicle = vId;
     while (vehicleMount.children.length > 0) {
       vehicleMount.remove(vehicleMount.children[0]);
     }
@@ -571,6 +690,7 @@ export function createStudentRig(
     leftLeg.visible = !insideCockpit;
     rightLeg.visible = !insideCockpit;
     supplyMount.visible = !insideCockpit;
+    syncSkirtVisibility();
     if (vId === 'car') {
       bodyGroup.position.set(0, 0.25, -0.1);
     } else if (vId === 'plane') {
@@ -581,36 +701,9 @@ export function createStudentRig(
   };
   applyVehicle(initialVehicle);
 
-  const updateLook = async (look: CharacterLook, vip: boolean) => {
-    skinMat.color.set(look.skinTone);
-    crownMesh.visible = vip;
-    headGroup.remove(hairGroup);
-    hairGroup = buildHairGroup(look.hairStyle);
-    headGroup.add(hairGroup);
-
-    if (look.faceDataUrl) {
-      const tex = await createFaceTextureFromImage(
-        look.faceDataUrl,
-        look.skinTone,
-        look.hasGlasses,
-        maxAniso
-      );
-      faceMat.map?.dispose();
-      faceMat.map = tex;
-      faceMat.needsUpdate = true;
-    } else {
-      const tex = createDefaultFaceTexture(look.skinTone, look.hasGlasses, maxAniso);
-      faceMat.map?.dispose();
-      faceMat.map = tex;
-      faceMat.needsUpdate = true;
-    }
-  };
-
-  if (initialLook.faceDataUrl) {
-    updateLook(initialLook, vipUnlocked);
-  }
-
   const updateOutfit = (uId: UniformId, outfitId: OutfitId = 'school_uniform') => {
+    currentUniform = uId;
+    currentOutfit = outfitId;
     const tex =
       outfitId === 'school_uniform'
         ? createUniformTorsoTexture(uId, maxAniso)
@@ -620,7 +713,8 @@ export function createStudentRig(
     torsoFrontMat.needsUpdate = true;
 
     if (outfitId === 'school_uniform') {
-      pantsMat.color.setHex(0x1e293b);
+      skirtMat.color.setHex(0x1e293b);
+      pantsMat.color.set(currentGender === 'female' ? currentSkinTone : '#1e293b');
       if (uId === 'green_35') {
         sleeveMat.color.setHex(0x84cc16);
         cuffMat.color.setHex(0x0f172a);
@@ -643,17 +737,78 @@ export function createStudentRig(
       sleeveMat.color.setHex(0x991b1b);
       cuffMat.color.setHex(0x1e293b);
       pantsMat.color.setHex(0x1e293b);
+    } else if (outfitId === 'denim_jacket') {
+      sleeveMat.color.setHex(0x1d4ed8);
+      cuffMat.color.setHex(0x1e3a8a);
+      pantsMat.color.setHex(0x1e293b);
+    } else if (outfitId === 'korean_blazer') {
+      sleeveMat.color.setHex(0xd6b48a);
+      cuffMat.color.setHex(0x78350f);
+      skirtMat.color.setHex(0x78350f);
+      pantsMat.color.set(currentGender === 'female' ? currentSkinTone : '#451a03');
+    } else if (outfitId === 'pleated_skirt') {
+      sleeveMat.color.setHex(0xf8fafc);
+      cuffMat.color.setHex(0x1e3a8a);
+      skirtMat.color.setHex(0x1e3a8a);
+      pantsMat.color.set(currentSkinTone);
+    } else if (outfitId === 'pastel_cardigan') {
+      sleeveMat.color.setHex(0xc084fc);
+      cuffMat.color.setHex(0xfdf2f8);
+      skirtMat.color.setHex(0xfef3c7);
+      pantsMat.color.set(currentSkinTone);
+    } else if (outfitId === 'ao_dai_white') {
+      sleeveMat.color.setHex(0xf8fafc);
+      cuffMat.color.setHex(0xf472b6);
+      pantsMat.color.setHex(0xf8fafc);
     } else if (outfitId === 'ao_dai_vn') {
       sleeveMat.color.setHex(0xbe185d);
       cuffMat.color.setHex(0xfbcfe8);
       pantsMat.color.setHex(0xf8fafc);
+    } else if (outfitId === 'princess_dress') {
+      sleeveMat.color.setHex(0x0d9488);
+      cuffMat.color.setHex(0xfde047);
+      skirtMat.color.setHex(0x0f766e);
+      pantsMat.color.set(currentSkinTone);
     } else {
       // formal_suit
       sleeveMat.color.setHex(0x0f172a);
       cuffMat.color.setHex(0xf8fafc);
       pantsMat.color.setHex(0x0f172a);
     }
+    syncSkirtVisibility();
   };
+
+  const updateLook = async (look: CharacterLook, vip: boolean) => {
+    currentGender = look.gender || 'male';
+    currentSkinTone = look.skinTone;
+    skinMat.color.set(look.skinTone);
+    crownMesh.visible = vip;
+    headGroup.remove(hairGroup);
+    hairGroup = buildHairGroup(look.hairStyle);
+    headGroup.add(hairGroup);
+
+    if (look.faceDataUrl) {
+      const tex = await createFaceTextureFromImage(
+        look.faceDataUrl,
+        look.skinTone,
+        look.hasGlasses,
+        maxAniso
+      );
+      faceMat.map?.dispose();
+      faceMat.map = tex;
+      faceMat.needsUpdate = true;
+    } else {
+      const tex = createDefaultFaceTexture(look.skinTone, look.hasGlasses, maxAniso, currentGender);
+      faceMat.map?.dispose();
+      faceMat.map = tex;
+      faceMat.needsUpdate = true;
+    }
+    updateOutfit(currentUniform, currentOutfit);
+  };
+
+  if (initialLook.faceDataUrl) {
+    updateLook(initialLook, vipUnlocked);
+  }
 
   const updateUniform = (uId: UniformId, outfitId: OutfitId = 'school_uniform') => {
     updateOutfit(uId, outfitId);

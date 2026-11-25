@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Camera, Check, ChevronDown, ChevronUp, RefreshCw, ShieldAlert, ShieldCheck, Upload, User } from 'lucide-react';
 import { CLASS_8A3_ROSTER, findMatching8A3RosterName } from '../data/gameData';
-import { CharacterLook, HairStyleId } from '../types/game';
+import { CharacterLook, GenderType, HairStyleId } from '../types/game';
 import { soundEngine } from '../utils/sound';
 
 interface WebcamScannerModalProps {
@@ -12,12 +12,24 @@ interface WebcamScannerModalProps {
   onClose?: () => void;
 }
 
-const HAIR_OPTIONS: Array<{ id: HairStyleId; label: string }> = [
+const MALE_HAIR_OPTIONS: Array<{ id: HairStyleId; label: string }> = [
   { id: 'short_boy', label: 'Tóc ngắn học sinh' },
   { id: 'spiky', label: 'Tóc dựng năng động' },
-  { id: 'bob_cut', label: 'Tóc bob ngang vai' },
-  { id: 'ponytail', label: 'Tóc buộc đuôi ngựa' },
+  { id: 'side_part', label: 'Tóc rẽ ngôi Hàn Quốc' },
+  { id: 'curly_boy', label: 'Tóc xoăn bồng bềnh' },
+  { id: 'undercut', label: 'Tóc Undercut vuốt ngược' },
 ];
+
+const FEMALE_HAIR_OPTIONS: Array<{ id: HairStyleId; label: string }> = [
+  { id: 'long_straight', label: 'Tóc dài thẳng + Bờm hồng' },
+  { id: 'ponytail', label: 'Tóc buộc đuôi ngựa' },
+  { id: 'bob_cut', label: 'Tóc bob ngang vai' },
+  { id: 'twin_tails', label: 'Tóc buộc 2 bên dễ thương' },
+  { id: 'high_bun', label: 'Tóc búi cao cài nơ' },
+];
+
+const MALE_HAIR_IDS = new Set<HairStyleId>(MALE_HAIR_OPTIONS.map((h) => h.id));
+const FEMALE_HAIR_IDS = new Set<HairStyleId>(FEMALE_HAIR_OPTIONS.map((h) => h.id));
 
 const SKIN_TONES = [
   { hex: '#fde0c8', label: 'Sáng' },
@@ -37,11 +49,21 @@ export const WebcamScannerModal: React.FC<WebcamScannerModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [name, setName] = useState(initialLook.name);
+  const [gender, setGender] = useState<GenderType>(initialLook.gender || 'male');
   const [faceDataUrl, setFaceDataUrl] = useState<string | null>(initialLook.faceDataUrl);
   const [hairStyle, setHairStyle] = useState<HairStyleId>(initialLook.hairStyle);
   const [hasGlasses, setHasGlasses] = useState<boolean>(initialLook.hasGlasses);
   const [skinTone, setSkinTone] = useState<string>(initialLook.skinTone);
   const [isDelinquent, setIsDelinquent] = useState<boolean>(initialIsDelinquent);
+
+  const handleSelectGender = (nextGender: GenderType) => {
+    setGender(nextGender);
+    if (nextGender === 'female' && MALE_HAIR_IDS.has(hairStyle)) {
+      setHairStyle('long_straight');
+    } else if (nextGender === 'male' && FEMALE_HAIR_IDS.has(hairStyle)) {
+      setHairStyle('short_boy');
+    }
+  };
 
   const [camActive, setCamActive] = useState(false);
   const [camError, setCamError] = useState<string | null>(null);
@@ -131,6 +153,7 @@ export const WebcamScannerModal: React.FC<WebcamScannerModalProps> = ({
     onSave(
       {
         name: matchedRosterName || cleaned,
+        gender,
         faceDataUrl,
         hairStyle,
         hasGlasses,
@@ -276,7 +299,7 @@ export const WebcamScannerModal: React.FC<WebcamScannerModalProps> = ({
                     onClick={() => setShowRosterList((v) => !v)}
                     className="inline-flex items-center gap-1 text-xs text-lime-400 hover:text-lime-300"
                   >
-                    <span>Xem DS 8A3 (48 bạn)</span>
+                    <span>Xem DS 8A3 ({CLASS_8A3_ROSTER.length} bạn)</span>
                     {showRosterList ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                   </button>
                 </div>
@@ -324,23 +347,82 @@ export const WebcamScannerModal: React.FC<WebcamScannerModalProps> = ({
 
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Kiểu tóc nhân vật 3D
+                  Giới tính nhân vật 3D
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {HAIR_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => setHairStyle(opt.id)}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium text-left border transition-colors ${
-                        hairStyle === opt.id
-                          ? 'bg-lime-500/20 border-lime-400 text-lime-200'
-                          : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectGender('male')}
+                    className={`py-2 px-3 rounded-lg border text-xs font-bold transition-colors ${
+                      gender === 'male'
+                        ? 'bg-sky-500/20 border-sky-400 text-sky-200'
+                        : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    Nhân vật Nam
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectGender('female')}
+                    className={`py-2 px-3 rounded-lg border text-xs font-bold transition-colors ${
+                      gender === 'female'
+                        ? 'bg-pink-500/20 border-pink-400 text-pink-200'
+                        : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    Nhân vật Nữ (Váy / Lông mi)
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2.5">
+                <label className="block text-xs font-medium text-slate-300">
+                  Kiểu tóc nhân vật 3D (Nam & Nữ)
+                </label>
+                <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
+                  <div>
+                    <p className="text-[11px] font-semibold text-pink-300 mb-1">
+                      Kiểu tóc Nữ ({FEMALE_HAIR_OPTIONS.length})
+                    </p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {FEMALE_HAIR_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setHairStyle(opt.id)}
+                          className={`px-2.5 py-1.5 rounded-lg text-xs font-medium text-left border transition-colors ${
+                            hairStyle === opt.id
+                              ? 'bg-pink-500/20 border-pink-400 text-pink-200'
+                              : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-[11px] font-semibold text-sky-300 mb-1">
+                      Kiểu tóc Nam ({MALE_HAIR_OPTIONS.length})
+                    </p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {MALE_HAIR_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setHairStyle(opt.id)}
+                          className={`px-2.5 py-1.5 rounded-lg text-xs font-medium text-left border transition-colors ${
+                            hairStyle === opt.id
+                              ? 'bg-lime-500/20 border-lime-400 text-lime-200'
+                              : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
